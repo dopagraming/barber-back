@@ -2,6 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { auth } from '../middleware/auth.js';
+import admin from '../lib/firebaseAdmin.js';
 
 const router = express.Router();
 
@@ -100,6 +101,62 @@ router.get('/me', auth, async (req, res) => {
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+// login with google
+router.post('/google', async (req, res) => {
+  try {
+    const { idToken } = req.body;
+    if (!idToken) return res.status(400).json({ message: 'Missing idToken' });
+
+    // Verify Firebase token
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const { email, name, picture } = decodedToken;
+
+    console.log(email, name, picture)
+    // Check if user exists in your DB
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      const [firstName, ...rest] = name.split(' ');
+      const lastName = rest.join(' ');
+
+      user = new User({
+        firstName,
+        lastName,
+        email,
+        avatar: picture,
+        role: 'customer',
+        password: Math.random().toString(36).slice(-8), // dummy password
+      });
+
+      await user.save();
+    }
+
+    // Generate your own JWT
+    const token = jwt.sign(
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET || 'fallback_secret',
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        avatar: user.avatar,
+      },
+    });
+  } catch (error) {
+    console.log(error)
+    console.error(error);
+    res.status(401).json({ message: 'Google login failed' });
   }
 });
 
