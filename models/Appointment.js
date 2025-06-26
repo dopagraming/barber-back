@@ -37,6 +37,11 @@ const appointmentSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  peopleCount: {
+    type: Number,
+    default: 1,
+    min: 1
+  },
   paymentStatus: {
     type: String,
     enum: ['pending', 'paid', 'refunded'],
@@ -59,7 +64,37 @@ const appointmentSchema = new mongoose.Schema({
   review: {
     type: String,
     default: ''
-  }
+  },
+  // Repeat functionality
+  isRepeating: {
+    type: Boolean,
+    default: false
+  },
+  repeatConfig: {
+    interval: {
+      type: Number,
+      default: 1
+    },
+    unit: {
+      type: String,
+      enum: ['day', 'week', 'month'],
+      default: 'week'
+    },
+    endDate: {
+      type: Date
+    },
+    occurrences: {
+      type: Number
+    }
+  },
+  parentAppointment: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Appointment'
+  },
+  childAppointments: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Appointment'
+  }]
 }, {
   timestamps: true
 });
@@ -67,5 +102,6 @@ const appointmentSchema = new mongoose.Schema({
 // Index for efficient queries
 appointmentSchema.index({ date: 1, barber: 1 });
 appointmentSchema.index({ customer: 1, date: -1 });
+appointmentSchema.index({ parentAppointment: 1 });
 
 export default mongoose.model('Appointment', appointmentSchema);

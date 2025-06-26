@@ -13,6 +13,7 @@ import customerRoutes from './routes/customers.js';
 import barberRoutes from './routes/barbers.js';
 import analyticsRoutes from './routes/analytics.js';
 import timeManagementRoutes from './routes/timeManagement.js';
+import userRoutes from './routes/users.js';
 
 dotenv.config();
 
@@ -46,6 +47,7 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/barbers', barberRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/time-management', timeManagementRoutes);
+app.use('/api/users', userRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -58,6 +60,6 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
-app.listen(PORT || process.env.PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
