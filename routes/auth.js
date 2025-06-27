@@ -9,7 +9,7 @@ const router = express.Router();
 // Register
 router.post('/register', async (req, res) => {
   try {
-    const { firstName, lastName, email, phone, password, role = 'customer' } = req.body;
+    const { name, email, phone, password, role = 'customer' } = req.body;
 
     // Check if user exists
     const existingUser = await User.findOne({ email });
@@ -19,8 +19,7 @@ router.post('/register', async (req, res) => {
 
     // Create user
     const user = new User({
-      firstName,
-      lastName,
+      name,
       email,
       phone,
       password,
@@ -40,8 +39,7 @@ router.post('/register', async (req, res) => {
       token,
       user: {
         id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        name: user.name,
         email: user.email,
         phone: user.phone,
         role: user.role,
@@ -81,8 +79,7 @@ router.post('/login', async (req, res) => {
       token,
       user: {
         id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        name: user.name,
         email: user.email,
         phone: user.phone,
         role: user.role,
@@ -119,12 +116,8 @@ router.post('/google', async (req, res) => {
     let user = await User.findOne({ email });
 
     if (!user) {
-      const [firstName, ...rest] = name.split(' ');
-      const lastName = rest.join(' ');
-
       user = new User({
-        firstName,
-        lastName,
+        name,
         email,
         avatar: picture,
         role: 'customer',
@@ -145,8 +138,7 @@ router.post('/google', async (req, res) => {
       token,
       user: {
         id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        name: user.name,
         email: user.email,
         phone: user.phone,
         role: user.role,
