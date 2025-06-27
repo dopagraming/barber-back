@@ -9,7 +9,7 @@ const router = express.Router();
 // Register
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, phone, password, role = 'customer' } = req.body;
+    const { userName, name, email, phone, password, role = 'customer' } = req.body;
 
     // Check if user exists
     const existingUser = await User.findOne({ email });
@@ -19,6 +19,7 @@ router.post('/register', async (req, res) => {
 
     // Create user
     const user = new User({
+      userName,
       name,
       email,
       phone,
@@ -39,6 +40,7 @@ router.post('/register', async (req, res) => {
       token,
       user: {
         id: user._id,
+        userName: user.userName,
         name: user.name,
         email: user.email,
         phone: user.phone,
@@ -54,10 +56,10 @@ router.post('/register', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { userName, password } = req.body;
 
     // Find user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ userName });
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
@@ -79,6 +81,7 @@ router.post('/login', async (req, res) => {
       token,
       user: {
         id: user._id,
+        userName: user.userName,
         name: user.name,
         email: user.email,
         phone: user.phone,
@@ -111,7 +114,6 @@ router.post('/google', async (req, res) => {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const { email, name, picture } = decodedToken;
 
-    console.log(email, name, picture)
     // Check if user exists in your DB
     let user = await User.findOne({ email });
 

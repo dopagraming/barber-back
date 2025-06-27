@@ -2,6 +2,10 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
+  userName: {
+    type: String,
+    trim: true
+  },
   name: {
     type: String,
     required: true,
