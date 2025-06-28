@@ -4,11 +4,10 @@ const appointmentSchema = new mongoose.Schema({
   customer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
   },
-  barber: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+  customerName: {
+    type: String,
+    trim: true
   },
   service: {
     type: mongoose.Schema.Types.ObjectId,

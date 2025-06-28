@@ -18,7 +18,6 @@ router.get('/', auth, async (req, res) => {
 
     const appointments = await Appointment.find(query)
       .populate('customer', 'name phone email')
-      .populate('barber', 'name name')
       .populate('service', 'name nameAr price duration')
       .sort({ date: -1 });
 
@@ -80,7 +79,6 @@ router.post('/', auth, async (req, res) => {
       _id: { $in: allAppointments.map(apt => apt._id) }
     })
       .populate('customer', 'name phone email')
-      .populate('barber', 'name')
       .populate('service', 'name nameAr price duration');
 
     res.status(201).json(populatedAppointments);
@@ -108,7 +106,6 @@ router.put('/:id', auth, async (req, res) => {
       req.body,
       { new: true }
     ).populate('customer', 'name phone email')
-      .populate('barber', 'name')
       .populate('service', 'name nameAr price duration');
 
     res.json(updatedAppointment);
