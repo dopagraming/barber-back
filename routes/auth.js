@@ -2,7 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { auth } from '../middleware/auth.js';
-import admin from '../lib/firebaseAdmin.js';
+import admin from "../lib/firebaseAdmin.js"
 
 const router = express.Router();
 

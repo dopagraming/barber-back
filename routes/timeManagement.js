@@ -1,6 +1,7 @@
 import express from 'express';
 import { auth } from '../middleware/auth.js';
 import TimeSettings from '../models/TimeSettings.js';
+import Appointment from '../models/Appointment.js';
 
 const router = express.Router();
 
@@ -83,6 +84,20 @@ router.get('/slots/:date', async (req, res) => {
         const breakEnd = settings.breakTime?.enabled
             ? new Date(`2000-01-01T${settings.breakTime.endTime}:00`)
             : null;
+        const startOfDay = new Date(requestDate);
+        startOfDay.setUTCHours(0, 0, 0, 0);
+
+        const endOfDay = new Date(requestDate);
+        endOfDay.setUTCHours(23, 59, 59, 999);
+
+        const bookedAppointments = await Appointment.find({
+            date: {
+                $gte: startOfDay,
+                $lte: endOfDay
+            },
+            status: { $ne: 'cancelled' }
+        });
+        const bookedTimes = bookedAppointments.map(a => a.time);
 
         let current = new Date(start);
 
@@ -90,12 +105,15 @@ router.get('/slots/:date', async (req, res) => {
             const slotEnd = new Date(current.getTime() + dayConfig.slotDuration * 60000);
             const timeStr = current.toTimeString().slice(0, 5);
 
+
             const isBreakTime = breakStart && breakEnd &&
                 ((current >= breakStart && current < breakEnd) ||
                     (slotEnd > breakStart && slotEnd <= breakEnd) ||
                     (current < breakStart && slotEnd > breakEnd));
 
-            if (!isBreakTime && slotEnd <= end) {
+            const isBooked = bookedTimes.includes(timeStr);
+
+            if (!isBreakTime && slotEnd <= end && !isBooked) {
                 slots.push({
                     time: timeStr,
                     duration: dayConfig.slotDuration,
@@ -111,5 +129,6 @@ router.get('/slots/:date', async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
 
 export default router;
