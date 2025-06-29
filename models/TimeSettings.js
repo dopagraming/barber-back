@@ -7,6 +7,10 @@ const daySchema = new mongoose.Schema({
     openTime: String,
     closeTime: String,
     slotDuration: Number,
+    serviceType: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Service',
+    }
 });
 
 const breakTimeSchema = new mongoose.Schema({
