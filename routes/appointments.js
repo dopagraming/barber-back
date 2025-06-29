@@ -19,7 +19,7 @@ router.get('/', auth, async (req, res) => {
     const appointments = await Appointment.find(query)
       .populate('customer', 'name phone email')
       .populate('service', 'name nameAr price duration')
-      .sort({ date: -1 });
+      .sort({ date: 1 });
 
     res.json(appointments);
   } catch (error) {
